@@ -1,13 +1,12 @@
 "use client";
-import z from "zod";
+
+import { z } from "zod";
 import { useRef } from "react";
 import Image from "next/image";
-import { ImageIcon } from "lucide-react";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { createWorkspaceSchema } from "../schemas";
-import { useCreateWorkspace } from "../api/use-create-workspace";
+import { ArrowLeftIcon, ImageIcon } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -15,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DottedSeparator } from "@/components/dotted-separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 import {
   Form,
   FormControl,
@@ -25,41 +23,52 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-interface CreateWorkspaceFormProps {
+import { Workspace } from "../types";
+import { updateWorkspaceSchema } from "../schemas";
+import { useUpdateWorkspace } from "../api/use-update-workspace";
+
+interface EditWorkspaceFormProps {
   onCancel?: () => void;
+  initialValues: Workspace;
 }
 
-export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
+export const EditWorkspaceForm = ({
+  onCancel,
+  initialValues,
+}: EditWorkspaceFormProps) => {
   const router = useRouter();
-  const { mutate, isPending } = useCreateWorkspace();
+  const { mutate, isPending } = useUpdateWorkspace();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const form = useForm<z.infer<typeof createWorkspaceSchema>>({
-    resolver: zodResolver(createWorkspaceSchema),
+  const form = useForm<z.infer<typeof updateWorkspaceSchema>>({
+    resolver: zodResolver(updateWorkspaceSchema),
     defaultValues: {
-      name: "",
+      ...initialValues,
+      image: initialValues.imageUrl ?? "",
     },
   });
-  const onSubmit = (values: z.infer<typeof createWorkspaceSchema>) => {
+
+  const onSubmit = (values: z.infer<typeof updateWorkspaceSchema>) => {
     const finalValues = {
       ...values,
       image: values.image instanceof File ? values.image : "",
     };
 
     mutate(
-      { form: finalValues },
+      {
+        form: finalValues,
+        param: { workspaceId: initialValues.$id },
+      },
       {
         onSuccess: ({ data }) => {
           form.reset();
-          // switcher直接刷新到最新创建的workspace
           router.push(`/workspaces/${data.$id}`);
         },
       },
     );
   };
 
-  // 处理图片上传事件
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -69,19 +78,30 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
 
   return (
     <Card className="w-full h-full border-none shadow-none">
-      <CardHeader className="flex p-7">
+      <CardHeader className="flex flex-row items-center gap-x-4 p-7 space-y-0">
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={
+            onCancel
+              ? onCancel
+              : () => router.push(`/workspaces/${initialValues.$id}`)
+          }
+        >
+          <ArrowLeftIcon className="size-4 mr-2" />
+          Back
+        </Button>
         <CardTitle className="text-xl font-bold">
-          Create a new workspace
+          {initialValues.name}
         </CardTitle>
       </CardHeader>
-
-      <DottedSeparator className="px-7" />
-
+      <div className="px-7">
+        <DottedSeparator />
+      </div>
       <CardContent className="p-7">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-y-4">
-              {/* 工作区名称 */}
               <FormField
                 control={form.control}
                 name="name"
@@ -95,7 +115,6 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
                   </FormItem>
                 )}
               />
-              {/* 上传图片 */}
               <FormField
                 control={form.control}
                 name="image"
@@ -135,7 +154,6 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
                           onChange={handleImageChange}
                           disabled={isPending}
                         />
-                        {/* 判断是否有照片来显示remove还是upload */}
                         {field.value ? (
                           <Button
                             type="button"
@@ -169,22 +187,22 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
                   </div>
                 )}
               />
-              <DottedSeparator className="py-7" />
-              <div className="flex items-center justify-between">
-                <Button
-                  type="button"
-                  size="lg"
-                  variant="secondary"
-                  onClick={onCancel}
-                  disabled={isPending}
-                  className={cn(!onCancel && "invisible")}
-                >
-                  Cancel
-                </Button>
-                <Button disabled={isPending} type="submit" size="lg">
-                  Create Workspace
-                </Button>
-              </div>
+            </div>
+            <DottedSeparator className="py-7" />
+            <div className="flex items-center justify-between">
+              <Button
+                type="button"
+                size="lg"
+                variant="secondary"
+                onClick={onCancel}
+                disabled={isPending}
+                className={cn(!onCancel && "invisible")}
+              >
+                Cancel
+              </Button>
+              <Button disabled={isPending} type="submit" size="lg">
+                Save Changes
+              </Button>
             </div>
           </form>
         </Form>
