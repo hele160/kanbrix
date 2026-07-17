@@ -13,11 +13,13 @@ import {
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { WorkspaceAvatar } from "@/features/workspaces/components/workspace-avatar";
 import { useRouter } from "next/navigation";
+import { useCreateWorkspaceModal } from "@/features/workspaces/hooks/use-create-workspace-modal";
 
 export const WorkspaceSwitcher = () => {
   const workspaceId = useWorkspaceId();
   const router = useRouter();
   const { data: workspaces } = useGetWorkspaces();
+  const { open } = useCreateWorkspaceModal();
 
   // 点击事件
   const onSelect = (id: string) => {
@@ -27,8 +29,11 @@ export const WorkspaceSwitcher = () => {
     <div className="flex flex-col gap-y-2">
       <div className="flex items-center justify-between">
         <p className="text-xs uppercase text-neutral-500">Workspaces</p>
-        {/* 添加 workspace */}
-        <RiAddCircleFill className="size-5 text-neutral-500 cursor-pointer hover:opacity-75 transition" />
+        {/* 添加 workspace,绑定事件 */}
+        <RiAddCircleFill
+          onClick={open}
+          className="size-5 text-neutral-500 cursor-pointer hover:opacity-75 transition"
+        />
       </div>
       {/* 发生点击事件时，重定向到指定workspace页面 */}
       <Select onValueChange={onSelect} value={workspaceId}>

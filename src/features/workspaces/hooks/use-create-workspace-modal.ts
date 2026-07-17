@@ -1,5 +1,6 @@
 import { useQueryState, parseAsBoolean } from "nuqs";
 
+// 点击创建按钮触发事件，将isOpen设为true，或者close设置为false
 export const useCreateWorkspaceModal = () => {
   const [isOpen, setIsOpen] = useQueryState(
     "create-workspace",

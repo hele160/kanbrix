@@ -51,6 +51,7 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
       {
         onSuccess: ({ data }) => {
           form.reset();
+          // switcher直接刷新到最新创建的workspace
           router.push(`/workspaces/${data.$id}`);
         },
       },

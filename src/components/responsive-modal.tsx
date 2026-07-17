@@ -4,6 +4,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 
+// 响应式呈现workspace创建页面
 interface ResponsiveModalProps {
   children: React.ReactNode;
   open: boolean;
