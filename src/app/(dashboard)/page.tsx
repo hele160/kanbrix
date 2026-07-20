@@ -13,6 +13,7 @@ export default async function Home() {
   if (workspaces.total === 0) {
     redirect("/workspaces/create");
   } else {
+    // 默认重定向到第一个workspace
     redirect(`/workspaces/${workspaces.documents[0].$id}`);
   }
 }

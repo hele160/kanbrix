@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { useCreateWorkspaceModal } from "@/features/workspaces/hooks/use-create-workspace-modal";
 
 export const WorkspaceSwitcher = () => {
+  // 通过URL获取当前workspace的id ，自动同步，和首页面的重定向相对应
   const workspaceId = useWorkspaceId();
   const router = useRouter();
   const { data: workspaces } = useGetWorkspaces();
