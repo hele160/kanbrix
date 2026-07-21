@@ -2,7 +2,6 @@
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { MemberAvatar } from "@/features/members/components/member-avatar";
@@ -32,7 +31,7 @@ import {
 } from "@/components/ui/select";
 
 import { TaskStatus } from "../types";
-import { createTaskSchema } from "../schemas";
+import { createTaskSchema, createTaskFormSchema } from "../schemas";
 import { useCreateTask } from "../api/use-create-task";
 
 interface CreateTaskFormProps {
@@ -47,17 +46,21 @@ export const CreateTaskForm = ({
   memberOptions,
 }: CreateTaskFormProps) => {
   const workspaceId = useWorkspaceId();
-  const router = useRouter();
   const { mutate, isPending } = useCreateTask();
 
-  const form = useForm<z.infer<typeof createTaskSchema>>({
-    resolver: zodResolver(createTaskSchema.omit({ workspaceId: true })),
+  const form = useForm({
+    resolver: zodResolver(createTaskFormSchema) as any,
     defaultValues: {
-      workspaceId,
+      name: "",
+      status: TaskStatus.TODO,
+      projectId: "",
+      dueDate: new Date(),
+      assigneeId: "",
+      description: undefined,
     },
   });
 
-  const onSubmit = (values: z.infer<typeof createTaskSchema>) => {
+  const onSubmit = (values: z.infer<typeof createTaskFormSchema>) => {
     mutate(
       { json: { ...values, workspaceId } },
       {

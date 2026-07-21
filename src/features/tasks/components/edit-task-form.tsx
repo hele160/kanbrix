@@ -2,7 +2,6 @@
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { MemberAvatar } from "@/features/members/components/member-avatar";
@@ -49,10 +48,12 @@ export const EditTaskForm = ({
   initialValues,
 }: EditTaskFormProps) => {
   const workspaceId = useWorkspaceId();
-  const router = useRouter();
   const { mutate, isPending } = useUpdateTask();
 
-  const formSchema = createTaskSchema.omit({ workspaceId: true, description: true });
+  const formSchema = createTaskSchema.omit({
+    workspaceId: true,
+    description: true,
+  });
   type FormValues = z.infer<typeof formSchema>;
 
   const form = useForm<FormValues>({
@@ -71,7 +72,11 @@ export const EditTaskForm = ({
   const onSubmit = (values: FormValues) => {
     mutate(
       {
-        json: { ...values, workspaceId, description: initialValues.description },
+        json: {
+          ...values,
+          workspaceId,
+          description: initialValues.description,
+        },
         param: { taskId: initialValues.$id },
       },
       {
